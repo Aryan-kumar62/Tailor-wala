@@ -22,6 +22,8 @@ import { RateExperience } from './pages/RateExperience.jsx'
 import { MeasurementProfile } from './pages/MeasurementProfile.jsx'
 import { Offers } from './pages/Offers.jsx'
 import { AuthPage } from './pages/AuthPage.jsx'
+import { ForgotPassword } from './pages/ForgotPassword.jsx'
+import { ResetPassword } from './pages/ResetPassword.jsx'
 import { TailorDashboard } from './pages/TailorDashboard.jsx'
 import { TailorProfilePage } from './pages/TailorProfilePage.jsx'
 import { TailorEarnings } from './pages/TailorEarnings.jsx'
@@ -63,6 +65,8 @@ function App() {
                 <Route path="/search" element={<TailorSearch />} />
                 <Route path="/tailor/:id" element={<TailorDetailPage />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
 
                 <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
                 <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

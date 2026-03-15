@@ -1,63 +1,52 @@
+import axios from 'axios'
+
 const API_BASE_URL = 'http://localhost:5000/api'
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token')
-  return token
-    ? {
-        Authorization: `Bearer ${token}`,
-      }
-    : {}
-}
+// Create an Axios instance
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
-export const apiGet = async (path, options = {}) => {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-      ...(options.headers || {}),
-    },
-  })
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}))
-    throw new Error(errorBody.message || 'Request failed')
+// Request interceptor to inject the token
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
   }
-  return res.json()
-}
+)
 
-export const apiPost = async (path, body, options = {}) => {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-      ...(options.headers || {}),
-    },
-    body: JSON.stringify(body),
-  })
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}))
-    throw new Error(errorBody.message || 'Request failed')
+// Response interceptor to format errors
+apiClient.interceptors.response.use(
+  (response) => {
+    return response.data
+  },
+  (error) => {
+    const message = error.response?.data?.message || error.message || 'Request failed'
+    return Promise.reject(new Error(message))
   }
-  return res.json()
+)
+
+export const apiGet = (path, config = {}) => {
+  return apiClient.get(path, config)
 }
 
-export const apiPatch = async (path, body, options = {}) => {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'PATCH',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-      ...(options.headers || {}),
-    },
-    body: JSON.stringify(body),
-  })
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}))
-    throw new Error(errorBody.message || 'Request failed')
-  }
-  return res.json()
+export const apiPost = (path, data, config = {}) => {
+  return apiClient.post(path, data, config)
 }
 
+export const apiPut = (path, data, config = {}) => {
+  return apiClient.put(path, data, config)
+}
+
+export const apiPatch = (path, data, config = {}) => {
+  return apiClient.patch(path, data, config)
+}
